@@ -10,6 +10,8 @@ if (!function_exists('morph_component')) {
         if (!file_exists($component_path)) {
             throw new Exception('Morph component not found: ' . $component_path);
         }
+
+        $morph_data = json_decode(file_get_contents('php://input'), true);
         ?>
         <div data-component-name="<?= $component_name; ?>">
             <?php require $component_path; ?>

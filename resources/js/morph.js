@@ -21,12 +21,11 @@ Alpine.magic('morph', (e) => (data, callback) => {
     method: 'POST',
     credentials: 'same-origin',
     headers: {
+      'Content-Type': 'application/json',
       'X-Morph-Request': true,
+      'X-Morph-Nonce': window.MORPH.nonce,
     },
-    body: new URLSearchParams({
-      ...payload,
-      nonce: window.MORPH.nonce,
-    }),
+    body: JSON.stringify(payload),
   })
     .then((response) => {
       if (!response.ok) {

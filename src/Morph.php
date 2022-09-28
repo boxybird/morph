@@ -46,7 +46,7 @@ class Morph
         }
 
         // Check if the request is for a valid nonce
-        if (!wp_verify_nonce($_POST['nonce'] ?? null, 'morph_ajax_nonce')) {
+        if (!wp_verify_nonce($_SERVER['HTTP_X_MORPH_NONCE'] ?? null, 'morph_ajax_nonce')) {
             header('HTTP/1.1 500 Morph component error');
             exit;
         }
