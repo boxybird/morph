@@ -19,11 +19,9 @@ if (!defined('WPINC')) {
 /**
  * Define constants.
  */
-define('BB_MORPH_PATH', __DIR__);
-define('BB_MORPH_URL', plugin_dir_url(__FILE__));
 define('BB_MORPH_VERSION', '0.0.1');
 
 /**
- * Bootstrap plugin.
+ * Setup plugin.
  */
-require_once BB_MORPH_PATH . '/src/bootstrap.php';
+require_once __DIR__ . '/src/setup.php';
