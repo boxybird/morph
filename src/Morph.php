@@ -22,13 +22,7 @@ class Morph
     {
         $version = md5(file_get_contents(__DIR__ . '/../dist/mix-manifest.json'));
 
-        // BBTODO - This is a hack. How can you conditionally enqueue a script
-        //          based on whether it's used as a plugin or as a composer package in a theme?
-        if (strpos(__DIR__, 'vendor') !== false) {
-            wp_enqueue_script('morph', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/morph.js', [], $version, true);
-        } else {
-            wp_enqueue_script('morph', content_url('plugins/morph/dist/morph.js'), [], $version, true);
-        }
+        wp_enqueue_script('morph', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/morph.js', [], $version, true);
 
         wp_localize_script('morph', 'MORPH', [
             'base_url' => '/morph/api/v1/component/',
