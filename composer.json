@@ -1,0 +1,25 @@
+{
+  "name": "boxybird/morph",
+  "description": "A plugin for building WordPress components with Alpine.js.",
+  "license": "MIT",
+  "keywords": [
+    "WordPress",
+    "Alpine.js",
+    "plugin"
+  ],
+  "autoload": {
+    "psr-4": {
+      "BoxyBird\\Morph\\": "src/"
+    },
+    "files": [
+      "src/functions.php"
+    ]
+  },
+  "authors": [
+    {
+      "name": "Andrew Rhyand",
+      "email": "andrew.rhyand@gmail.com"
+    }
+  ],
+  "require": {}
+}
