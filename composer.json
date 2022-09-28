@@ -12,7 +12,7 @@
       "BoxyBird\\Morph\\": "src/"
     },
     "files": [
-      "src/bootstrap.php"
+      "bootstrap.php"
     ]
   },
   "authors": [
