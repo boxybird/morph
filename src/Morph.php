@@ -8,7 +8,29 @@ class Morph
     {
         add_action('init', [$this, 'registerApiEndpoint']);
         add_action('wp_enqueue_scripts', [$this, 'enqueueScripts']);
-        add_action('template_redirect', [$this, 'handleAjaxComponentRequest']);
+        
+        if ($this->isMorphRequest()) {
+            add_action('send_headers', [$this, 'handleHeaders']);
+            add_action('template_redirect', [$this, 'handleAjaxComponentRequest']);
+        }
+    }
+
+    public function handleHeaders($wp)
+    {
+        // BBTODO: Are the below checks enough security?
+
+        // Check if the request is for a valid component
+        $component_name = $wp->query_vars['morph_component_name'] ?? null;
+        if (empty($component_name) || !is_string($component_name)) {
+            header('HTTP/1.1 500 Morph component error');
+            exit;
+        }
+
+        // Check if the request has a valid nonce
+        if (!wp_verify_nonce($_SERVER['HTTP_X_MORPH_NONCE'] ?? null, 'morph_ajax_nonce')) {
+            header('HTTP/1.1 500 Morph component error');
+            exit;
+        }
     }
 
     public function registerApiEndpoint(): void
@@ -32,27 +54,13 @@ class Morph
 
     public function handleAjaxComponentRequest()
     {
-        // Check if the request is for a Morph component
-        if (empty($_SERVER['HTTP_X_MORPH_REQUEST'])) {
-            return;
-        }
-    
-        // Check if the request is for a valid component
-        $component_name = get_query_var('morph_component_name');
-
-        if (empty($component_name)) {
-            header('HTTP/1.1 500 Morph component error'); // BBTODO - can I send headers this late?
-            exit;
-        }
-
-        // Check if the request is for a valid nonce
-        if (!wp_verify_nonce($_SERVER['HTTP_X_MORPH_NONCE'] ?? null, 'morph_ajax_nonce')) {
-            header('HTTP/1.1 500 Morph component error');
-            exit;
-        }
-
-        morph_component($component_name);
+        morph_component(get_query_var('morph_component_name'));
         exit;
+    }
+
+    protected function isMorphRequest()
+    {
+        return !empty($_SERVER['HTTP_X_MORPH_REQUEST']);
     }
 }
 
