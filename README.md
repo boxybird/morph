@@ -6,6 +6,6 @@ Install the package via composer.
 
 ```
 cd wp-content/themes/your-theme
-composer require boxybird/waffle
+composer require boxybird/morph
 ```
 
