@@ -13,6 +13,11 @@ cd wp-content/themes/your-theme
 ```
 composer require boxybird/morph
 ```
+> Location: /themes/your-theme/functions.php
+
+```php
+require_once __DIR__ . '/vendor/autoload.php';
+```
 
 ## Live Examples
 
