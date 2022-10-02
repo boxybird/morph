@@ -18,6 +18,9 @@ composer require boxybird/morph
 ```php
 require_once __DIR__ . '/vendor/autoload.php';
 ```
+> Location: /wp-admin/options-permalink.php
+
+Visit and refresh permalinks by clicking **"Save Changes"** button
 
 ## Live Examples
 
