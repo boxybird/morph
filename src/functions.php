@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Request;
+
 if (!function_exists('morph_component')) {
     function morph_component(string $component_name): void
     {
@@ -11,7 +13,9 @@ if (!function_exists('morph_component')) {
             throw new Exception('Morph component not found: ' . $component_path);
         }
 
-        $morph_data = json_decode(file_get_contents('php://input'), true);
+        $morph_request = Request::createFromGlobals();
+        $morph_files = $morph_request->files->all();
+        $morph_post = $morph_data = $morph_request->request->all();
         ?>
         <div data-component-name="<?= $component_name; ?>">
             <?php require $component_path; ?>

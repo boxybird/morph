@@ -17,15 +17,28 @@ Alpine.magic('morph', (e) => (data, callback) => {
     Object.assign(payload, data)
   }
 
+  const formData = new FormData()
+
+  Object.keys(payload).forEach((key) => {
+    let value = payload[key]
+
+    if (value instanceof FileList) {
+      Array.from(value).forEach((file) => {
+        formData.append(`${key}[]`, file)
+      })
+    }
+
+    formData.append(key, value)
+  })
+
   fetch(`${MORPH.base_url}${componentName}/`, {
     method: 'POST',
     credentials: 'same-origin',
     headers: {
-      'Content-Type': 'application/json',
       'X-Morph-Request': true,
       'X-Morph-Nonce': window.MORPH.nonce,
     },
-    body: JSON.stringify(payload),
+    body: formData,
   })
     .then((response) => {
       if (!response.ok) {

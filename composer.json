@@ -21,5 +21,7 @@
       "bootstrap.php"
     ]
   },
-  "require": {}
+  "require": {
+    "symfony/http-foundation": "^5.4"
+  }
 }
