@@ -43,11 +43,11 @@ https://wp-morph.andrewrhyand.com/
 ```php
 <?php
 
-/** @var $morph_data */
+/** @var $morph_post */
 
 $count = (int) get_option('count', 0);
 
-if ($morph_data['increment'] ?? false) {
+if ($morph_post['increment'] ?? false) {
     $count++;
 
     update_option('count', $count);
