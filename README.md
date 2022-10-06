@@ -63,3 +63,88 @@ if ($count >= 10) {
     <button x-on:click="$morph('increment')">Increment</button>
 </div>
 ```
+
+## Example Upload
+
+> Location: /themes/your-theme/index.php
+
+```php
+<?php get_header(); ?>
+
+    <?php morph_component('upload'); ?>
+
+<?php get_footer(); ?>
+```
+
+> Location: /themes/your-theme/morph/components/upload.php
+
+```php
+<?php
+
+/** @var Symfony\Component\HttpFoundation\File\UploadedFile $morph_files */
+
+$images = [];
+
+foreach ($morph_files['images'] ?? [] as $image) {
+    $image->move(wp_upload_dir()['path'], $image->getClientOriginalName());
+    $images[] = wp_upload_dir()['url'] . '/' . $image->getClientOriginalName();
+}
+?>
+
+<div x-data="{ images: [] }">
+    <input type="file" multiple x-on:change="images = $el.files">        
+    <button x-on:click="$morph({ images })">Upload</button>
+
+    <?php foreach ($images as $image): ?>
+        <img src="<?= $image; ?>">
+    <?php endforeach; ?>
+</div>
+```
+
+## Example Todos
+
+> Location: /themes/your-theme/index.php
+
+```php
+<?php get_header(); ?>
+
+    <?php morph_component('todos'); ?>
+
+<?php get_footer(); ?>
+```
+
+> Location: /themes/your-theme/morph/components/todos.php
+
+```php
+<?php
+
+/** @var $morph_post */
+
+$todos = get_option('todos', []);
+
+if ($todo = $morph_post['todo'] ?? false) {
+    $todos[] = $todo;
+
+    update_option('todos', $todos);
+}
+
+if (count($todos) >= 5) {
+   delete_option('todos');   
+}
+?>
+
+<div x-data="{ todo: '' }">
+    <input  
+        type="text" 
+        x-model="todo" 
+        x-on:keydown.enter="$morph({ todo }, () => todo = '')">
+        
+    <button x-on:click="$morph({ todo }, () => todo = '')">Add</button>
+
+    <ul>
+        <?php foreach ($todos as $todo) : ?>
+            <li><?= esc_html($todo); ?></li>
+        <?php endforeach; ?>
+    </ul>
+</div>
+```
