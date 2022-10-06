@@ -6,8 +6,8 @@ window.Alpine = Alpine
 Alpine.plugin(morph)
 
 Alpine.magic('morph', (e) => (data, callback) => {
-  const rootEl = e.closest('[data-component-name]')
-  const componentName = rootEl.dataset.componentName
+  const rootEl = e.closest('[data-morph-component-name]')
+  const componentName = rootEl.dataset.morphComponentName
 
   const payload = {}
 

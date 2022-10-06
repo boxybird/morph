@@ -17,7 +17,7 @@ if (!function_exists('morph_component')) {
         $morph_files = $morph_request->files->all();
         $morph_post = $morph_data = $morph_request->request->all();
         ?>
-        <div data-component-name="<?= $component_name; ?>">
+        <div data-morph-component-name="<?= $component_name; ?>">
             <?php require $component_path; ?>
         </div>
         <?php
