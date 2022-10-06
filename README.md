@@ -26,6 +26,18 @@ Visit and refresh permalinks by clicking **"Save Changes"** button
 
 https://wp-morph.andrewrhyand.com/
 
+## Lifecycle Hooks
+
+```php
+$morph({ ... },  {
+    onStart: () => {},
+    onResponse: res => {},
+    onSuccess: data => {},
+    onError: error => {},
+    onFinish: () => {},
+})
+```
+
 ## Example Counter
 
 > Location: /themes/your-theme/index.php
@@ -137,9 +149,15 @@ if (count($todos) >= 5) {
     <input  
         type="text" 
         x-model="todo" 
-        x-on:keydown.enter="$morph({ todo }, () => todo = '')">
+        x-on:keydown.enter="$morph({ todo }, {
+            onSuccess: () => todo = '',
+        })">
         
-    <button x-on:click="$morph({ todo }, () => todo = '')">Add</button>
+    <button 
+        x-on:click="$morph({ todo }, {
+            onSuccess: () => todo = '',
+        })"
+    >Add</button>
 
     <ul>
         <?php foreach ($todos as $todo) : ?>

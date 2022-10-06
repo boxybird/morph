@@ -5,9 +5,15 @@ window.Alpine = Alpine
 
 Alpine.plugin(morph)
 
-Alpine.magic('morph', (e) => (data, callback) => {
+// BBTODO - refactor this monster when you know if this Morph thing is going to work
+Alpine.magic('morph', (e) => (data, hooks = {}) => {
   const rootEl = e.closest('[data-morph-component-name]')
   const componentName = rootEl.dataset.morphComponentName
+
+  // Lifecycle hook
+  if (hooks.onStart && typeof hooks.onStart === 'function') {
+    hooks.onStart()
+  }
 
   const payload = {}
 
@@ -41,6 +47,11 @@ Alpine.magic('morph', (e) => (data, callback) => {
     body: formData,
   })
     .then((response) => {
+      // Lifecycle hook
+      if (hooks.onResponse && typeof hooks.onResponse === 'function') {
+        hooks.onResponse(response)
+      }
+
       if (!response.ok) {
         throw new Error(response.statusText)
       }
@@ -50,18 +61,22 @@ Alpine.magic('morph', (e) => (data, callback) => {
     .then((data) => {
       Alpine.morph(rootEl, data)
 
-      callback &&
-        callback({
-          data,
-          success: true,
-        })
+      // Lifecycle hook
+      if (hooks.onSuccess && typeof hooks.onSuccess === 'function') {
+        hooks.onSuccess(data)
+      }
     })
     .catch((error) => {
-      callback &&
-        callback({
-          error,
-          success: false,
-        })
+      // Lifecycle hook
+      if (hooks.onError && typeof hooks.onError === 'function') {
+        hooks.onError(error)
+      }
+    })
+    .finally(() => {
+      // Lifecycle hook
+      if (hooks.onFinish && typeof hooks.onFinish === 'function') {
+        hooks.onFinish()
+      }
     })
 })
 
