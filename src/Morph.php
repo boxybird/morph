@@ -49,7 +49,7 @@ class Morph
         // wp_enqueue_style('bb-morph-editor', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/editor.css', [], $version);
     
         // Pushing to production...
-        wp_enqueue_style('bb-morph-editor', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/editor.js', [], $version);
+        wp_enqueue_style('bb-morph-editor', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/editor.css', [], $version);
     }
 
     public function enqueueScripts()
