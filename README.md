@@ -22,6 +22,20 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 Visit and refresh permalinks by clicking **"Save Changes"** button
 
+## Important
+
+By default, this plugin pre-bundles Alpine. If you site already has Alpine installed, you should dequeue this plugins version to avoid conflicts.
+
+**Note:** A minimum version of Alpine 3.10.0 is required. 
+
+> Location: /themes/your-theme/functions.php
+
+```php
+add_action('wp_enqueue_scripts', function () {
+    wp_dequeue_script('bb-alpine');
+});
+```
+
 ## Live Examples
 
 https://wp-morph.andrewrhyand.com/
