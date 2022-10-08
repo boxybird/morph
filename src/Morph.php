@@ -43,10 +43,16 @@ class Morph
     public function enqueueScripts()
     {
         $version = md5(file_get_contents(__DIR__ . '/../dist/mix-manifest.json'));
+       
+        // Working locally...// BBTODO - Find best way to handle this
+        // wp_enqueue_script('bb-morph', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/morph.js', [], $version, true);
+        // wp_enqueue_script('bb-alpine', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/alpine.js', ['bb-morph'], $version, true);
 
-        wp_enqueue_script('morph', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/morph.js', [], $version, true);
+        // Pushing to production...
+        wp_enqueue_script('bb-morph', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/morph.js', [], $version, true);
+        wp_enqueue_script('bb-alpine', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/alpine.js', ['bb-morph'], $version, true);
 
-        wp_localize_script('morph', 'MORPH', [
+        wp_localize_script('bb-morph', 'BB_MORPH', [
             'base_url' => '/morph/api/v1/component/',
             'nonce'    => wp_create_nonce('morph_ajax_nonce'),
         ]);
