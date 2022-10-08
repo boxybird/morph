@@ -22,6 +22,7 @@
     ]
   },
   "require": {
+    "illuminate/encryption": "^8.0",
     "symfony/http-foundation": "^5.4"
   }
 }

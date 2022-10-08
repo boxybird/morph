@@ -42,7 +42,7 @@ document.addEventListener('alpine:init', (Alpine) => {
       credentials: 'same-origin',
       headers: {
         'X-Morph-Request': true,
-        'X-Morph-Nonce': window.BB_MORPH.nonce,
+        'X-Morph-Hash': window.BB_MORPH.hash,
       },
       body: formData,
     })

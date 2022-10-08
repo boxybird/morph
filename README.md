@@ -13,11 +13,18 @@ cd wp-content/themes/your-theme
 ```
 composer require boxybird/morph
 ```
+> Location: /wp-config.php
+
+```php
+define('BB_MORPH_HASH_KEY', 'SOME_RANDOM_16_CHARACTER_STRING');
+```
+
 > Location: /themes/your-theme/functions.php
 
 ```php
 require_once __DIR__ . '/vendor/autoload.php';
 ```
+
 > Location: /wp-admin/options-permalink.php
 
 Visit and refresh permalinks by clicking **"Save Changes"** button
