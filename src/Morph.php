@@ -7,6 +7,7 @@ class Morph
     public function __construct()
     {
         add_action('init', [$this, 'registerApiEndpoint']);
+        add_action('wp_enqueue_editor', [$this, 'enqueueEditor']);
         add_action('wp_enqueue_scripts', [$this, 'enqueueScripts']);
         
         if ($this->isMorphRequest()) {
@@ -38,6 +39,17 @@ class Morph
         // BBTODO - Find best way to flush rewrite rules on composer install
         add_rewrite_tag('%morph_component_name%', '([a-zA-Z-]+)');
         add_rewrite_rule('morph/api/v1/component/([a-zA-Z-]+)$', 'index.php?morph_component_name=$matches[1]', 'top');
+    }
+
+    public function enqueueEditor(): void
+    {
+        $version = md5(file_get_contents(__DIR__ . '/../dist/mix-manifest.json'));
+
+        // Working locally...// BBTODO - Find best way to handle this
+        // wp_enqueue_style('bb-morph-editor', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/editor.css', [], $version);
+    
+        // Pushing to production...
+        wp_enqueue_style('bb-morph-editor', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/editor.js', [], $version);
     }
 
     public function enqueueScripts()
