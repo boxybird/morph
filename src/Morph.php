@@ -78,24 +78,30 @@ class Morph
     {
         $version = md5(file_get_contents(__DIR__ . '/../dist/mix-manifest.json'));
 
-        // Working locally...// BBTODO - Find best way to handle this
-        // wp_enqueue_style('bb-morph-editor', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/editor.css', [], $version);
-    
-        // Pushing to production...
-        wp_enqueue_style('bb-morph-editor', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/editor.css', [], $version);
+        // BBTODO - Find best way to handle this
+        if (defined('BB_MORPH_DEV') && BB_MORPH_DEV) {
+            // Working locally...
+            wp_enqueue_style('bb-morph-editor', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/editor.css', [], $version);
+        } else {
+            // Pushing to production...
+            wp_enqueue_style('bb-morph-editor', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/editor.css', [], $version);
+        }
     }
 
     public function enqueueScripts()
     {
         $version = md5(file_get_contents(__DIR__ . '/../dist/mix-manifest.json'));
-       
-        // Working locally...// BBTODO - Find best way to handle this
-        // wp_enqueue_script('bb-morph', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/morph.js', [], $version, true);
-        // wp_enqueue_script('bb-alpine', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/alpine.js', ['bb-morph'], $version, true);
 
-        // Pushing to production...
-        wp_enqueue_script('bb-morph', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/morph.js', [], $version, true);
-        wp_enqueue_script('bb-alpine', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/alpine.js', ['bb-morph'], $version, true);
+        // BBTODO - Find best way to handle this
+        if (defined('BB_MORPH_DEV') && BB_MORPH_DEV) {
+            // Working locally...
+            wp_enqueue_script('bb-morph', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/morph.js', [], $version, true);
+            wp_enqueue_script('bb-alpine', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/alpine.js', ['bb-morph'], $version, true);
+        } else {
+            // Pushing to production...
+            wp_enqueue_script('bb-morph', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/morph.js', [], $version, true);
+            wp_enqueue_script('bb-alpine', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/alpine.js', ['bb-morph'], $version, true);
+        }
 
         wp_localize_script('bb-morph', 'BB_MORPH', [
             'base_url' => '/morph/api/v1/component/',
@@ -114,7 +120,13 @@ class Morph
         // Normally this info in lost when the component is rendered via AJAX.
         $post = get_post((int) $this->hash_data['current_post_id']);
 
+        // Same as above, but for $wp_query->setup_postdata( $post )
+        setup_postdata($post);
+
         morph_component(get_query_var('morph_component_name'));
+
+        // Reset the global $post and $wp_query
+        wp_reset_postdata();
         exit;
     }
 }
