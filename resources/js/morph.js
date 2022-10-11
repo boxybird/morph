@@ -15,10 +15,16 @@ document.addEventListener('alpine:init', (Alpine) => {
 
     const payload = {}
 
-    if (typeof data === 'string') {
-      payload[data] = data
+    // Check if the incoming data is from a 'morph' CustomEvent()
+    if (typeof data === 'object' && data?.type === 'morph') {
+      Object.assign(payload, data.detail)
     } else {
-      Object.assign(payload, data)
+      // If not, handle data as a string or an object
+      if (typeof data === 'string') {
+        payload[data] = data
+      } else {
+        Object.assign(payload, data)
+      }
     }
 
     const formData = new FormData()
@@ -58,8 +64,25 @@ document.addEventListener('alpine:init', (Alpine) => {
 
         return response.text()
       })
-      .then((data) => {
-        window.Alpine.morph(rootEl, data)
+      .then((res) => {
+        window.Alpine.morph(rootEl, res)
+
+        // Emit events
+        if (hooks.emit && typeof hooks.emit === 'boolean') {
+          const eventPayload = {
+            bubbles: true,
+            detail: {
+              component: componentName,
+              ...data,
+            },
+          }
+
+          const morph = new CustomEvent('morph', eventPayload)
+          const morphEvent = new CustomEvent('morph:emit', eventPayload)
+
+          document.dispatchEvent(morph)
+          document.dispatchEvent(morphEvent)
+        }
 
         // Lifecycle hook
         if (hooks.onSuccess && typeof hooks.onSuccess === 'function') {
