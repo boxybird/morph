@@ -188,3 +188,44 @@ if (count($todos) >= 5) {
     </ul>
 </div>
 ```
+
+## Example Event/Listener
+
+> Location: /themes/your-theme/index.php
+
+```php
+<?php get_header(); ?>
+
+    <?php morph_component('event'); ?>
+
+    <?php morph_component('listener'); ?>
+
+<?php get_footer(); ?>
+```
+
+> Location: /themes/your-theme/morph/components/event.php
+
+```php
+<div x-data>
+    <button 
+        x-on:click="$morph({ message: 'A message from the event.php component.' }, { emit: true })"
+    >Fire Morph Event</button>
+</div>
+```
+
+> Location: /themes/your-theme/morph/components/listener.php
+
+```php
+<?php
+
+$morph_component = $morph_post['morphComponent'] ?? null;
+
+$message = $morph_component === 'event'
+    ? $morph_post['message']
+    : 'No message';
+?>
+
+<div x-data x-on:morph.document="$morph">
+    <p><?= $message; ?></p>
+</div>
+```
