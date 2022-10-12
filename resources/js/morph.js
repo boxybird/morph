@@ -1,4 +1,5 @@
 import morph from '@alpinejs/morph'
+import { serialize } from 'object-to-formdata'
 
 // BBTODO - refactor this monster when you know if this Morph thing is going to work
 document.addEventListener('alpine:init', (Alpine) => {
@@ -27,22 +28,6 @@ document.addEventListener('alpine:init', (Alpine) => {
       }
     }
 
-    const formData = new FormData()
-
-    Object.keys(payload).forEach((key) => {
-      let value = payload[key]
-
-      // Handle multiple file uploads
-      // Single file uploads are handled by the formData.append(key, value) below
-      if (value instanceof FileList) {
-        Array.from(value).forEach((file) => {
-          formData.append(`${key}[]`, file)
-        })
-      }
-
-      formData.append(key, value)
-    })
-
     fetch(`${BB_MORPH.base_url}${componentName}/`, {
       method: 'POST',
       credentials: 'same-origin',
@@ -50,7 +35,7 @@ document.addEventListener('alpine:init', (Alpine) => {
         'X-Morph-Request': true,
         'X-Morph-Hash': window.BB_MORPH.hash,
       },
-      body: formData,
+      body: serialize(payload),
     })
       .then((response) => {
         // Lifecycle hook
@@ -72,8 +57,8 @@ document.addEventListener('alpine:init', (Alpine) => {
           const eventPayload = {
             bubbles: true,
             detail: {
-              component: componentName,
-              ...data,
+              ...payload,
+              morphComponent: componentName,
             },
           }
 

@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@alpinejs/morph": "^3.10.3",
-    "alpinejs": "^3.10.3"
+    "alpinejs": "^3.10.3",
+    "object-to-formdata": "^4.4.2"
   }
 }
