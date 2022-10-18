@@ -47,11 +47,11 @@ add_action('wp_enqueue_scripts', function () {
 
 https://wp-morph.andrewrhyand.com/
 
-## Lifecycle Hooks
+## Hooks
 
 ```php
-$morph({ ... },  {
-    emit: true,
+$wpMorph({ ... },  {
+    emit: false,
     onStart: () => {},
     onResponse: res => {},
     onSuccess: data => {},
@@ -94,7 +94,7 @@ if ($count >= 10) {
 
 <div x-data>
     <span><?= $count; ?></span>
-    <button x-on:click="$morph('increment')">Increment</button>
+    <button x-on:click="$wpMorph('increment')">Increment</button>
 </div>
 ```
 
@@ -117,17 +117,16 @@ if ($count >= 10) {
 
 /** @var Symfony\Component\HttpFoundation\File\UploadedFile $morph_files */
 
-$images = [];
-
-foreach ($morph_files['images'] ?? [] as $image) {
+$images = array_map(function ($image) {
     $image->move(wp_upload_dir()['path'], $image->getClientOriginalName());
-    $images[] = wp_upload_dir()['url'] . '/' . $image->getClientOriginalName();
-}
+    
+    return wp_upload_dir()['url'] . '/' . $image->getClientOriginalName();
+}, $morph_files['images'] ?? []);
 ?>
 
 <div x-data="{ images: [] }">
     <input type="file" multiple x-on:change="images = $el.files">        
-    <button x-on:click="$morph({ images })">Upload</button>
+    <button x-on:click="$wpMorph({ images })">Upload</button>
 
     <?php foreach ($images as $image): ?>
         <img src="<?= $image; ?>">
@@ -171,12 +170,12 @@ if (count($todos) >= 5) {
     <input  
         type="text" 
         x-model="todo" 
-        x-on:keydown.enter="$morph({ todo }, {
+        x-on:keydown.enter="$wpMorph({ todo }, {
             onSuccess: () => todo = '',
         })">
         
     <button 
-        x-on:click="$morph({ todo }, {
+        x-on:click="$wpMorph({ todo }, {
             onSuccess: () => todo = '',
         })"
     >Add</button>
@@ -208,7 +207,7 @@ if (count($todos) >= 5) {
 ```php
 <div x-data>
     <button 
-        x-on:click="$morph({ message: 'A message from the event.php component.' }, { emit: true })"
+        x-on:click="$wpMorph({ message: 'A message from the event.php component.' }, { emit: true })"
     >Fire Morph Event</button>
 </div>
 ```
@@ -218,14 +217,24 @@ if (count($todos) >= 5) {
 ```php
 <?php
 
-$morph_component = $morph_post['morphComponent'] ?? null;
+$morph_component = $morph_event['component'] ?? null;
 
 $message = $morph_component === 'event'
-    ? $morph_post['message']
+    ? $morph_event['data']['message']
     : 'No message';
 ?>
 
-<div x-data x-on:morph.document="$morph">
+<div x-data x-on:wpmorph.document="$wpMorph">
     <p><?= $message; ?></p>
 </div>
+```
+
+## Example Global Listener
+
+> Location: /themes/your-theme/some-js-file.js
+
+```js
+document.addEventListener('wpMorph', function ({ detail }) {
+    console.log(detail)
+});
 ```

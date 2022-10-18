@@ -5,9 +5,9 @@ import { serialize } from 'object-to-formdata'
 document.addEventListener('alpine:init', (Alpine) => {
   window.Alpine.plugin(morph)
 
-  window.Alpine.magic('morph', (e) => (data, hooks = {}) => {
-    const rootEl = e.closest('[data-morph-component-name]')
-    const componentName = rootEl.dataset.morphComponentName
+  window.Alpine.magic('wpMorph', (e) => (data, hooks = {}) => {
+    const rootEl = e.closest('[data-wpmorph-component-name]')
+    const componentName = rootEl.dataset.wpmorphComponentName
 
     // Lifecycle hook
     if (hooks.onStart && typeof hooks.onStart === 'function') {
@@ -16,8 +16,8 @@ document.addEventListener('alpine:init', (Alpine) => {
 
     const payload = {}
 
-    // Check if the incoming data is from a 'morph' CustomEvent()
-    if (typeof data === 'object' && data?.type === 'morph') {
+    // Check if the incoming data is from a 'wpmorph' CustomEvent()
+    if (typeof data === 'object' && data?.type === 'wpmorph') {
       Object.assign(payload, data.detail)
     } else {
       // If not, handle data as a string or an object
@@ -57,16 +57,14 @@ document.addEventListener('alpine:init', (Alpine) => {
           const eventPayload = {
             bubbles: true,
             detail: {
-              ...payload,
-              morphComponent: componentName,
+              wpMorphEvent: true,
+              componentName,
+              data: { ...payload },
             },
           }
 
-          const morph = new CustomEvent('morph', eventPayload)
-          const morphEvent = new CustomEvent('morph:emit', eventPayload)
-
-          document.dispatchEvent(morph)
-          document.dispatchEvent(morphEvent)
+          document.dispatchEvent(new CustomEvent('wpmorph', eventPayload))
+          document.dispatchEvent(new CustomEvent('wpMorph', eventPayload))
         }
 
         // Lifecycle hook

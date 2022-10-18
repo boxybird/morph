@@ -15,9 +15,22 @@ if (!function_exists('morph_component')) {
 
         $morph_request = Request::createFromGlobals();
         $morph_files = $morph_request->files->all();
-        $morph_post = $morph_data = $morph_request->request->all();
+        $morph_post = $morph_request->request->all();
+
+        // Prepare the component data if wpMorphEvent is set
+        $morph_event = [];
+        if (isset($morph_post['wpMorphEvent']) && $morph_post['wpMorphEvent'] === 'true') {
+            $morph_event = [
+                'component' => $morph_post['componentName'],
+                'data'      => $morph_post['data'],
+            ];
+
+            unset($morph_post['wpMorphEvent']);
+            unset($morph_post['componentName']);
+            unset($morph_post['data']);
+        }
         ?>
-        <div data-morph-component-name="<?= $component_name; ?>">
+        <div data-wpmorph-component-name="<?= $component_name; ?>">
             <?php require $component_path; ?>
         </div>
         <?php
