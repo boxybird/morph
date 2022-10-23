@@ -61,7 +61,7 @@ class Morph
         }
 
         // Check if the request has a valid nonce.
-        if (!wp_verify_nonce($this->hash_data['nonce'] ?? null, 'morph_ajax_nonce')) {
+        if (!wp_verify_nonce($this->hash_data['morph_data']['nonce'] ?? null, 'morph_ajax_nonce')) {
             header('HTTP/1.1 403 Morph component error');
             exit;
         }
@@ -102,14 +102,6 @@ class Morph
             wp_enqueue_script('bb-morph', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/morph.js', [], $version, true);
             wp_enqueue_script('bb-alpine', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/alpine.js', ['bb-morph'], $version, true);
         }
-
-        wp_localize_script('bb-morph', 'BB_MORPH', [
-            'base_url' => '/morph/api/v1/component/',
-            'hash'     => $this->encrypter->encrypt([
-                'current_post_id' => get_the_ID(),
-                'nonce'           => wp_create_nonce('morph_ajax_nonce'),
-            ]),
-        ]);
     }
 
     public function handleAjaxComponentRequest()
@@ -118,12 +110,12 @@ class Morph
 
         // Set the global $post to the $post that the component is being loaded on.
         // Normally this info in lost when the component is rendered via AJAX.
-        $post = get_post((int) $this->hash_data['current_post_id']);
+        $post = get_post((int) $this->hash_data['morph_data']['current_post_id']);
 
         // Same as above, but for $wp_query->setup_postdata( $post )
         setup_postdata($post);
 
-        morph_component(get_query_var('morph_component_name'));
+        morph_component(get_query_var('morph_component_name'), $this->hash_data['initial_data']);
 
         // Reset the global $post and $wp_query
         wp_reset_postdata();

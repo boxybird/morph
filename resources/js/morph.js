@@ -8,6 +8,7 @@ document.addEventListener('alpine:init', (Alpine) => {
   window.Alpine.magic('wpMorph', (e) => (data, hooks = {}) => {
     const rootEl = e.closest('[data-wpmorph-component-name]')
     const componentName = rootEl.dataset.wpmorphComponentName
+    const componentHash = rootEl.dataset.wpmorphComponentHash
 
     // Lifecycle hook
     if (hooks.onStart && typeof hooks.onStart === 'function') {
@@ -28,12 +29,12 @@ document.addEventListener('alpine:init', (Alpine) => {
       }
     }
 
-    fetch(`${BB_MORPH.base_url}${componentName}/`, {
+    fetch(`/morph/api/v1/component/${componentName}/`, {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
         'X-Morph-Request': true,
-        'X-Morph-Hash': window.BB_MORPH.hash,
+        'X-Morph-Hash': componentHash,
       },
       body: serialize(payload),
     })
