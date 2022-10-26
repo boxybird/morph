@@ -58,9 +58,10 @@ document.addEventListener('alpine:init', (Alpine) => {
           const eventPayload = {
             bubbles: true,
             detail: {
-              wpMorphEvent: true,
-              componentName,
-              data: { ...payload },
+              wpMorphEvent: {
+                componentName,
+                data: { ...payload },
+              },
             },
           }
 

@@ -55,15 +55,11 @@ class MorphComponent
 
         $event = [];
 
-        if (isset($post['wpMorphEvent']) && $post['wpMorphEvent'] === 'true') {
+        if (!empty($post['wpMorphEvent'])) {
             $event = [
-                'component' => $post['componentName'],
-                'data'      => $post['data'],
+                'component' => $post['wpMorphEvent']['componentName'],
+                'data'      => $post['wpMorphEvent']['data'],
             ];
-
-            unset($post['wpMorphEvent']);
-            unset($post['componentName']);
-            unset($post['data']);
         }
 
         $this->event = $event;
