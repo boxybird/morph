@@ -1,6 +1,6 @@
 # Morph
 
-A plugin for building Laravel Livewire inspired WordPress components with Alpine.js.
+A WordPress plugin for building Laravel Livewire inspired WordPress components with Alpine.js.
 
 ## Installation
 
@@ -206,8 +206,7 @@ if (count($todos) >= 5) {
 
 ```php
 <div x-data>
-    <button 
-        x-on:click="$wpMorph({ message: 'A message from the event.php component.' }, { emit: true })"
+    <button x-on:click="$wpMorph({ message: 'A message from the event.php component.' }, { emit: true })"
     >Fire Morph Event</button>
 </div>
 ```
