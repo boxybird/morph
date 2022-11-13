@@ -1,6 +1,6 @@
 # Morph
 
-A WordPress plugin for building Laravel Livewire inspired WordPress components with Alpine.js.
+A WordPress theme package for building Laravel Livewire inspired WordPress components with Alpine.js.
 
 ## Installation
 
