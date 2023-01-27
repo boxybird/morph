@@ -19,11 +19,14 @@ class MorphComponent
     public $request;
     
     public $initial_data;
+
+    public $attributes;
     
-    public function __construct(string $name, array $initial_data = [])
+    public function __construct(string $name, array $initial_data = [], array $attributes = [])
     {
         $this->name = $name;
         $this->initial_data = $initial_data;
+        $this->attributes = $attributes;
 
         $this->setPath();
         $this->setHash();
@@ -68,6 +71,7 @@ class MorphComponent
     private function setHash(): void
     {
         $this->hash = (new Encrypter(BB_MORPH_HASH_KEY))->encrypt([
+            'attributes'      => $this->attributes,
             'initial_data'    => $this->initial_data,
             'morph_data'      => [
                 'current_post_id' => get_the_ID(),

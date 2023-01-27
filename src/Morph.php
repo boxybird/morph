@@ -115,7 +115,11 @@ class Morph
         // Same as above, but for $wp_query->setup_postdata( $post )
         setup_postdata($post);
 
-        morph_component(get_query_var('morph_component_name'), $this->hash_data['initial_data']);
+        morph_component(
+            get_query_var('morph_component_name'),
+            $this->hash_data['initial_data'],
+            $this->hash_data['attributes']
+        );
 
         // Reset the global $post and $wp_query
         wp_reset_postdata();
