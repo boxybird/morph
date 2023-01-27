@@ -206,8 +206,8 @@ if (count($todos) >= 5) {
 
 ```php
 <div x-data>
-    <button x-on:click="$wpMorph({ message: 'A message from the event.php component.' }, { emit: true })"
-    >Fire Morph Event</button>
+    <button x-on:click="$dispatch('notify', 'A notification from the event.php component.')"
+    >Dispatch Event</button>
 </div>
 ```
 
@@ -216,15 +216,11 @@ if (count($todos) >= 5) {
 ```php
 <?php
 
-$morph_component = $morph_event['component'] ?? null;
-
-$message = $morph_component === 'event'
-    ? $morph_event['data']['message']
-    : 'No message';
+$notification = $morph_post['notification'] ?? null;
 ?>
 
-<div x-data x-on:wpmorph.document="$wpMorph">
-    <p><?= $message; ?></p>
+<div x-data x-on:notify.window="$wpMorph({ notification: $event.detail })">
+    <p><?= $notification; ?></p>
 </div>
 ```
 
@@ -233,7 +229,7 @@ $message = $morph_component === 'event'
 > Location: /themes/your-theme/some-js-file.js
 
 ```js
-document.addEventListener('wpMorph', function ({ detail }) {
-    console.log(detail)
+document.addEventListener('notify', function ({ detail }) {
+    console.log(detail) // A notification from the event.php component.
 });
 ```
