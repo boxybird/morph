@@ -5,12 +5,7 @@ use BoxyBird\Morph\MorphComponent;
 if (!function_exists('morph_component')) {
     function morph_component(string $component_name, array $initial_data = [], array $attributes = []): void
     {
-        $component = new MorphComponent($component_name, $initial_data, $attributes);
-
-        $morph_request = $component->request;
-        $morph_files = $component->request->files->all();
-        $morph_post = $component->request->request->all();
-        $morph_event = $component->event;
+        $morph_component = new MorphComponent($component_name, $initial_data, $attributes);
 
         $attributes_output = [];
 
@@ -20,9 +15,21 @@ if (!function_exists('morph_component')) {
         ?>
         <div
             <?= implode(' ', $attributes_output); ?>
-            data-wpmorph-component-hash="<?= $component->hash; ?>"
-            data-wpmorph-component-name="<?= $component->name; ?>">
-            <?php require $component->path; ?>
+            data-wpmorph-component-hash="<?= $morph_component->hash; ?>"
+            data-wpmorph-component-name="<?= $morph_component->name; ?>">
+            <?php
+
+            unset($initial_data['morph_component']);
+
+            extract($initial_data);
+
+            $morph_request = $morph_component->request;
+            $morph_files = $morph_component->request->files->all();
+            $morph_post = $morph_component->request->request->all();
+            $morph_event = $morph_component->event;
+                    
+            require $morph_component->path;
+            ?>
         </div>
         <?php
     }
