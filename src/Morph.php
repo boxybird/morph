@@ -70,8 +70,8 @@ class Morph
     public function registerApiEndpoint(): void
     {
         // BBTODO - Find best way to flush rewrite rules on composer install
-        add_rewrite_tag('%morph_component_name%', '([a-zA-Z-]+)');
-        add_rewrite_rule('morph/api/v1/component/([a-zA-Z-]+)$', 'index.php?morph_component_name=$matches[1]', 'top');
+        add_rewrite_tag('%morph_component_name%', '([a-zA-Z\/\.]+)');
+        add_rewrite_rule('morph/api/v1/component/([a-zA-Z\/\.]+)', 'index.php?morph_component_name=$matches[1]', 'top');
     }
 
     public function enqueueEditor(): void

@@ -71,9 +71,9 @@ class MorphComponent
     private function setHash(): void
     {
         $this->hash = (new Encrypter(BB_MORPH_HASH_KEY))->encrypt([
-            'attributes'      => $this->attributes,
-            'initial_data'    => $this->initial_data,
-            'morph_data'      => [
+            'attributes'   => $this->attributes,
+            'initial_data' => $this->initial_data,
+            'morph_data'   => [
                 'current_post_id' => get_the_ID(),
                 'nonce'           => wp_create_nonce('morph_ajax_nonce'),
             ]

@@ -5,7 +5,7 @@ use BoxyBird\Morph\MorphComponent;
 if (!function_exists('morph_component')) {
     function morph_component(string $component_name, array $initial_data = [], array $attributes = []): void
     {
-        $morph_component = new MorphComponent($component_name, $initial_data, $attributes);
+        $morph_component = new MorphComponent(str_replace('.', '/', $component_name), $initial_data, $attributes);
 
         $attributes_output = [];
 
