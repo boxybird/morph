@@ -26,8 +26,7 @@ if (!function_exists('morph_component')) {
             $morph_request = $morph_component->request;
             $morph_files = $morph_component->request->files->all();
             $morph_post = $morph_component->request->request->all();
-            $morph_event = $morph_component->event;
-                    
+                        
             require $morph_component->path;
             ?>
         </div>

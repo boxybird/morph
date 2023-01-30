@@ -51,7 +51,6 @@ https://wp-morph.andrewrhyand.com/
 
 ```php
 $wpMorph({ ... },  {
-    emit: false,
     onStart: () => {},
     onResponse: res => {},
     onSuccess: data => {},

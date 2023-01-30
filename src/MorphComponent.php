@@ -14,8 +14,6 @@ class MorphComponent
     
     public $hash;
     
-    public $event;
-
     public $request;
     
     public $initial_data;
@@ -31,7 +29,6 @@ class MorphComponent
         $this->setPath();
         $this->setHash();
         $this->setRequest();
-        $this->setEvent();
     }
 
     protected function setPath(): void
@@ -50,22 +47,6 @@ class MorphComponent
     protected function setRequest(): void
     {
         $this->request = Request::createFromGlobals();
-    }
-
-    protected function setEvent(): void
-    {
-        $post = $this->request->request->all();
-
-        $event = [];
-
-        if (!empty($post['wpMorphEvent'])) {
-            $event = [
-                'component' => $post['wpMorphEvent']['componentName'],
-                'data'      => $post['wpMorphEvent']['data'],
-            ];
-        }
-
-        $this->event = $event;
     }
 
     private function setHash(): void

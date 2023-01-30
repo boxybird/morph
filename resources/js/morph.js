@@ -53,22 +53,6 @@ document.addEventListener('alpine:init', (Alpine) => {
       .then((res) => {
         window.Alpine.morph(rootEl, res)
 
-        // Emit events
-        if (hooks.emit && typeof hooks.emit === 'boolean') {
-          const eventPayload = {
-            bubbles: true,
-            detail: {
-              wpMorphEvent: {
-                componentName,
-                data: { ...payload },
-              },
-            },
-          }
-
-          document.dispatchEvent(new CustomEvent('wpmorph', eventPayload))
-          document.dispatchEvent(new CustomEvent('wpMorph', eventPayload))
-        }
-
         // Lifecycle hook
         if (hooks.onSuccess && typeof hooks.onSuccess === 'function') {
           hooks.onSuccess(data)
