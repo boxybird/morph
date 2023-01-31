@@ -1,7 +1,6 @@
 import morph from '@alpinejs/morph'
 import { serialize } from 'object-to-formdata'
 
-// BBTODO - refactor this monster when you know if this Morph thing is going to work
 document.addEventListener('alpine:init', (Alpine) => {
   window.Alpine.plugin(morph)
 
@@ -17,16 +16,10 @@ document.addEventListener('alpine:init', (Alpine) => {
 
     const payload = {}
 
-    // Check if the incoming data is from a 'wpmorph' CustomEvent()
-    if (typeof data === 'object' && data?.type === 'wpmorph') {
-      Object.assign(payload, data.detail)
+    if (typeof data === 'string') {
+      payload[data] = data
     } else {
-      // If not, handle data as a string or an object
-      if (typeof data === 'string') {
-        payload[data] = data
-      } else {
-        Object.assign(payload, data)
-      }
+      Object.assign(payload, data)
     }
 
     fetch(`/morph/api/v1/component/${componentName}/`, {
