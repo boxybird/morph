@@ -56,6 +56,7 @@ class MorphComponent
             'initial_data' => $this->initial_data,
             'morph_data'   => [
                 'current_post_id' => get_the_ID(),
+                'component_name'  => $this->name,
                 'nonce'           => wp_create_nonce('morph_ajax_nonce'),
             ]
         ]);

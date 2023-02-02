@@ -53,9 +53,9 @@ class Morph
             exit;
         }
 
-        // Check if the request is for a valid component
+        // Check if the request is for the correct component.
         $component_name = $wp->query_vars['morph_component_name'] ?? null;
-        if (empty($component_name) || !is_string($component_name)) {
+        if ($component_name !== $this->hash_data['morph_data']['component_name']) {
             header('HTTP/1.1 403 Morph component error');
             exit;
         }
@@ -116,7 +116,7 @@ class Morph
         setup_postdata($post);
 
         morph_component(
-            get_query_var('morph_component_name'),
+            $this->hash_data['morph_data']['component_name'],
             $this->hash_data['attributes'],
             $this->hash_data['initial_data'],
         );
