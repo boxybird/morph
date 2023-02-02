@@ -16,15 +16,15 @@ class MorphComponent
     
     public $request;
     
-    public $initial_data;
-
     public $attributes;
     
-    public function __construct(string $name, array $initial_data = [], array $attributes = [])
+    public $initial_data;
+    
+    public function __construct(string $name, array $attributes = [], array $initial_data = [])
     {
         $this->name = $name;
-        $this->initial_data = $initial_data;
         $this->attributes = $attributes;
+        $this->initial_data = $initial_data;
 
         $this->setPath();
         $this->setHash();

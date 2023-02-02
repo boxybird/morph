@@ -3,9 +3,9 @@
 use BoxyBird\Morph\MorphComponent;
 
 if (!function_exists('morph_component')) {
-    function morph_component(string $component_name, array $initial_data = [], array $attributes = []): void
+    function morph_component(string $component_name, array $attributes = [], array $initial_data = []): void
     {
-        $morph_component = new MorphComponent(str_replace('.', '/', $component_name), $initial_data, $attributes);
+        $morph_component = new MorphComponent(str_replace('.', '/', $component_name), $attributes, $initial_data);
 
         $attributes_output = [];
 
@@ -26,7 +26,7 @@ if (!function_exists('morph_component')) {
             $morph_request = $morph_component->request;
             $morph_files = $morph_component->request->files->all();
             $morph_post = $morph_component->request->request->all();
-                        
+                            
             require $morph_component->path;
             ?>
         </div>
