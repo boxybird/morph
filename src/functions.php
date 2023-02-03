@@ -15,18 +15,19 @@ if (!function_exists('morph_component')) {
         ?>
         <div
             <?= implode(' ', $attributes_output); ?>
-            data-wpmorph-component-hash="<?= $morph_component->hash; ?>"
-            data-wpmorph-component-name="<?= $morph_component->name; ?>">
+            data-wpmorph-component-hash="<?= $morph_component->hash; ?>">
             <?php
 
+            // Safety measure to prevent user from overriding the $morph_component variable...
             unset($initial_data['morph_component']);
 
+            //...during the extraction of the $initial_data.
             extract($initial_data);
 
             $morph_request = $morph_component->request;
             $morph_files = $morph_component->request->files->all();
             $morph_post = $morph_component->request->request->all();
-                            
+                                
             require $morph_component->path;
             ?>
         </div>

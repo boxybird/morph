@@ -43,19 +43,10 @@ class Morph
 
     public function handleHeaders($wp)
     {
-        // BBTODO: Are the below checks enough security?
-
         // Attempt to decrypt hash
         try {
             $this->hash_data = $this->encrypter->decrypt($_SERVER['HTTP_X_MORPH_HASH'] ?? null);
         } catch (Exception $e) {
-            header('HTTP/1.1 403 Morph component error');
-            exit;
-        }
-
-        // Check if the request is for the correct component.
-        $component_name = $wp->query_vars['morph_component_name'] ?? null;
-        if ($component_name !== $this->hash_data['morph_data']['component_name']) {
             header('HTTP/1.1 403 Morph component error');
             exit;
         }
@@ -70,8 +61,7 @@ class Morph
     public function registerApiEndpoint(): void
     {
         // BBTODO - Find best way to flush rewrite rules on composer install
-        add_rewrite_tag('%morph_component_name%', '([a-zA-Z\/\.\-\_]+)');
-        add_rewrite_rule('morph/api/v1/component/([a-zA-Z\/\.\-\_]+)', 'index.php?morph_component_name=$matches[1]', 'top');
+        add_rewrite_rule('morph/api/v1/morph$', 'index.php', 'top');
     }
 
     public function enqueueEditor(): void

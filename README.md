@@ -31,7 +31,7 @@ Visit and refresh permalinks by clicking **"Save Changes"** button
 
 ## Important
 
-By default, this plugin pre-bundles Alpine. If you site already has Alpine installed, you should dequeue this plugins version to avoid conflicts.
+By default, this package pre-bundles Alpine. If you site already has Alpine installed, you should dequeue this packages version to avoid conflicts.
 
 **Note:** A minimum version of Alpine 3.10.0 is required. 
 
@@ -49,7 +49,7 @@ https://wp-morph.andrewrhyand.com/
 
 ## Hooks
 
-```php
+```JS
 $wpMorph({ ... },  {
     onStart: () => {},
     onResponse: res => {},
@@ -57,6 +57,18 @@ $wpMorph({ ... },  {
     onError: error => {},
     onFinish: () => {},
 })
+```
+
+By default, the `morph_component('example');` function will look for a matching file of name you passed in. E.g. `/your-theme/morph/components/example.php`.
+
+You can override this root folder path by using the `morph/component/path` filter.
+
+```php
+add_filter('morph/component/path', function ($path) {
+    $path = get_template_directory() . '/custom-folder/';
+    
+    return $path;
+});
 ```
 
 ## Example Counter

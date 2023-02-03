@@ -5,14 +5,8 @@ document.addEventListener('alpine:init', (Alpine) => {
   window.Alpine.plugin(morph)
 
   window.Alpine.magic('wpMorph', (e) => (data, hooks = {}) => {
-    const rootEl = e.closest('[data-wpmorph-component-name]')
-    const componentName = rootEl.dataset.wpmorphComponentName
+    const rootEl = e.closest('[data-wpmorph-component-hash]')
     const componentHash = rootEl.dataset.wpmorphComponentHash
-
-    // Lifecycle hook
-    if (hooks.onStart && typeof hooks.onStart === 'function') {
-      hooks.onStart()
-    }
 
     const payload = {}
 
@@ -22,7 +16,12 @@ document.addEventListener('alpine:init', (Alpine) => {
       Object.assign(payload, data)
     }
 
-    fetch(`/morph/api/v1/component/${componentName}/`, {
+    // Lifecycle hook
+    if (hooks.onStart && typeof hooks.onStart === 'function') {
+      hooks.onStart()
+    }
+
+    fetch('/morph/api/v1/morph', {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
