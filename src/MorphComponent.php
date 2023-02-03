@@ -14,8 +14,6 @@ class MorphComponent
     
     public $hash;
     
-    public $request;
-    
     public $attributes;
     
     public $initial_data;
@@ -28,7 +26,6 @@ class MorphComponent
 
         $this->setPath();
         $this->setHash();
-        $this->setRequest();
     }
 
     protected function setPath(): void
@@ -42,11 +39,6 @@ class MorphComponent
         }
 
         $this->path = $path;
-    }
-
-    protected function setRequest(): void
-    {
-        $this->request = Request::createFromGlobals();
     }
 
     private function setHash(): void

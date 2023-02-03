@@ -4,15 +4,19 @@ namespace BoxyBird\Morph;
 
 use Exception;
 use Illuminate\Encryption\Encrypter;
+use Symfony\Component\HttpFoundation\Request;
 
 class Morph
 {
+    private $request;
+
     private $encrypter;
 
     private $hash_data = [];
 
     public function __construct()
     {
+        $this->setRequest();
         $this->setEncrypter();
 
         add_action('init', [$this, 'registerApiEndpoint']);
@@ -23,6 +27,11 @@ class Morph
             add_action('send_headers', [$this, 'handleHeaders']);
             add_action('template_redirect', [$this, 'handleAjaxComponentRequest']);
         }
+    }
+
+    private function setRequest(): void
+    {
+        $this->request = Request::createFromGlobals();
     }
 
     private function setEncrypter()
@@ -38,14 +47,14 @@ class Morph
 
     private function isMorphRequest()
     {
-        return !empty($_SERVER['HTTP_X_MORPH_REQUEST']);
+        return !empty($this->request->headers->get('x-morph-request'));
     }
 
     public function handleHeaders($wp)
     {
         // Attempt to decrypt hash
         try {
-            $this->hash_data = $this->encrypter->decrypt($_SERVER['HTTP_X_MORPH_HASH'] ?? null);
+            $this->hash_data = $this->encrypter->decrypt($this->request->headers->get('x-morph-hash') ?? null);
         } catch (Exception $e) {
             header('HTTP/1.1 403 Morph component error');
             exit;
