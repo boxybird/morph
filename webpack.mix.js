@@ -5,3 +5,4 @@ mix
   .js('resources/js/morph.js', 'dist')
   .css('resources/css/editor.css', '')
   .setPublicPath('dist')
+  .version()
