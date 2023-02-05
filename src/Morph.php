@@ -8,22 +8,23 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Morph
 {
-    private $request;
+    private Request $request;
 
-    private $encrypter;
-
-    private $hash_data = [];
+    private Encrypter $encrypter;
+ 
+    private array $hash_data = [];
 
     public function __construct()
     {
         $this->setRequest();
-        $this->setEncrypter();
 
         add_action('init', [$this, 'registerApiEndpoint']);
         add_action('wp_enqueue_editor', [$this, 'enqueueEditor']);
         add_action('wp_enqueue_scripts', [$this, 'enqueueScripts']);
         
         if ($this->isMorphRequest()) {
+            $this->setEncrypter();
+
             add_action('send_headers', [$this, 'handleHeaders']);
             add_action('template_redirect', [$this, 'handleAjaxComponentRequest']);
         }
@@ -61,7 +62,8 @@ class Morph
         }
 
         // Check if the request has a valid nonce.
-        if (!wp_verify_nonce($this->hash_data['morph_data']['nonce'] ?? null, 'morph_ajax_nonce')) {
+        $nonce = 'morph_ajax_nonce_' . $this->hash_data['morph_data']['current_post_id'];
+        if (!wp_verify_nonce($this->hash_data['morph_data']['nonce'] ?? null, $nonce)) {
             header('HTTP/1.1 403 Morph component error');
             exit;
         }

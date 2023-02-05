@@ -4,28 +4,34 @@ namespace BoxyBird\Morph;
 
 use Exception;
 use Illuminate\Encryption\Encrypter;
-use Symfony\Component\HttpFoundation\Request;
 
 class MorphComponent
 {
-    public $name;
+    public string $name;
     
-    public $path;
+    public string $path;
     
-    public $hash;
+    public string $hash;
     
-    public $attributes;
+    public array $attributes = [];
     
-    public $initial_data;
+    public array $initial_data = [];
     
     public function __construct(string $name, array $attributes = [], array $initial_data = [])
     {
         $this->name = $name;
-        $this->attributes = $attributes;
         $this->initial_data = $initial_data;
 
+        $this->setAttributes($attributes);
         $this->setPath();
         $this->setHash();
+    }
+
+    protected function setAttributes(array $attributes): void
+    {
+        foreach ($attributes as $key => $value) {
+            $this->attributes[] = esc_attr($key) . '="' . esc_attr($value) . '"';
+        }
     }
 
     protected function setPath(): void
@@ -49,7 +55,7 @@ class MorphComponent
             'morph_data'   => [
                 'current_post_id' => get_the_ID(),
                 'component_name'  => $this->name,
-                'nonce'           => wp_create_nonce('morph_ajax_nonce'),
+                'nonce'           => wp_create_nonce('morph_ajax_nonce_' . get_the_ID()),
             ]
         ]);
     }

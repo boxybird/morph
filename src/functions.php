@@ -11,17 +11,12 @@ if (!function_exists('morph_component')) {
         
         $morph_request = Request::createFromGlobals();
 
-        $attributes_output = [];
-
-        foreach ($attributes as $key => $value) {
-            $attributes_output[] = esc_attr($key) . '="' . esc_attr($value) . '"';
-        }
-
         AcfBlockMeta::setup($initial_data['block_id'] ?? '');
         ?>
         <div
-            <?= implode(' ', $attributes_output); ?>
-            data-wpmorph-component-hash="<?= $morph_component->hash; ?>">
+            <?= implode(' ', $morph_component->attributes); ?>
+            data-wpmorph-component-hash="<?= $morph_component->hash; ?>"
+            data-wpmorph-component-name="<?= $morph_component->name; ?>">
             <?php
 
             // Safety measure to prevent user from overriding variables...
@@ -33,8 +28,8 @@ if (!function_exists('morph_component')) {
 
             $morph_files = $morph_request->files->all();
             $morph_post = $morph_request->request->all();
-                                                
-            require $morph_component->path;
+                                                        
+            require_once $morph_component->path;
 
             AcfBlockMeta::reset($initial_data['block_id'] ?? '');
             ?>
