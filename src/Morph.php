@@ -17,7 +17,7 @@ class Morph
     public function __construct()
     {
         $this->setRequest();
-
+        
         add_action('init', [$this, 'registerApiEndpoint']);
         add_action('wp_enqueue_editor', [$this, 'enqueueEditor']);
         add_action('wp_enqueue_scripts', [$this, 'enqueueScripts']);
@@ -96,12 +96,12 @@ class Morph
         // BBTODO - Find best way to handle this
         if (defined('BB_MORPH_DEV') && BB_MORPH_DEV) {
             // Working locally...
-            wp_enqueue_script('bb-morph', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/morph.js', [], $version, true);
-            wp_enqueue_script('bb-alpine', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/alpine.js', ['bb-morph'], $version, true);
+            wp_enqueue_script('bb-morph-init', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/init.js', [], $version, true);
+            wp_enqueue_script('bb-alpine', get_stylesheet_directory_uri() . '/packages/BoxyBird/Morph/dist/alpine.js', ['bb-morph-init'], $version, true);
         } else {
             // Pushing to production...
-            wp_enqueue_script('bb-morph', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/morph.js', [], $version, true);
-            wp_enqueue_script('bb-alpine', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/alpine.js', ['bb-morph'], $version, true);
+            wp_enqueue_script('bb-morph-init', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/init.js', [], $version, true);
+            wp_enqueue_script('bb-alpine', get_stylesheet_directory_uri() . '/vendor/boxybird/morph/dist/alpine.js', ['bb-morph-init'], $version, true);
         }
     }
 

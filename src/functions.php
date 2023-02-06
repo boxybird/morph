@@ -10,11 +10,17 @@ if (!function_exists('morph_component')) {
         $morph_component = new MorphComponent(str_replace('.', '/', $component_name), $attributes, $initial_data);
         
         $morph_request = Request::createFromGlobals();
-
-        AcfBlockMeta::setup($initial_data['block_id'] ?? '');
+        
+        $attributes_output = [];
+        
+        foreach ($morph_component->attributes as $key => $value) {
+            $attributes_output[] = $key . '="' . $value . '"';
+        }
+        
+        AcfBlockMeta::setup($initial_data['acf_block_id'] ?? '');
         ?>
         <div
-            <?= implode(' ', $morph_component->attributes); ?>
+            <?= implode(' ', $attributes_output); ?>
             data-wpmorph-component-hash="<?= $morph_component->hash; ?>"
             data-wpmorph-component-name="<?= $morph_component->name; ?>">
             <?php
@@ -28,10 +34,10 @@ if (!function_exists('morph_component')) {
 
             $morph_files = $morph_request->files->all();
             $morph_post = $morph_request->request->all();
-                                                        
-            require_once $morph_component->path;
+                                                                                    
+            require $morph_component->path;
 
-            AcfBlockMeta::reset($initial_data['block_id'] ?? '');
+            AcfBlockMeta::reset($initial_data['acf_block_id'] ?? '');
             ?>
         </div>
         <?php

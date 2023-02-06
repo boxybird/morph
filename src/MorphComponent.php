@@ -30,7 +30,7 @@ class MorphComponent
     protected function setAttributes(array $attributes): void
     {
         foreach ($attributes as $key => $value) {
-            $this->attributes[] = esc_attr($key) . '="' . esc_attr($value) . '"';
+            $this->attributes[esc_attr($key)] = esc_attr($value);
         }
     }
 
