@@ -67,6 +67,9 @@ class Morph
             header('HTTP/1.1 403 Morph component error');
             exit;
         }
+
+        // All good, send the OK header.
+        header('HTTP/1.1 200 OK');
     }
 
     public function registerApiEndpoint(): void
