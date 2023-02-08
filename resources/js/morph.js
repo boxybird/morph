@@ -39,7 +39,25 @@ export default (el, data, hooks = {}) => {
       return response.text()
     })
     .then((res) => {
-      window.Alpine.morph(rootEl, res)
+      window.Alpine.morph(rootEl, res, {
+        adding(el, skip) {
+          if (el.nodeType === 1 && el.hasAttribute('wp-morph-transition')) {
+            el.classList.add('morph-transition')
+          }
+        },
+
+        added(el) {
+          if (
+            el.nodeType === 1 &&
+            el.hasAttribute('wp-morph-transition') &&
+            el.classList.contains('morph-transition')
+          ) {
+            setTimeout(() => {
+              el.classList.add('in')
+            }, 170)
+          }
+        },
+      })
 
       // Lifecycle hook
       if (hooks.onSuccess && typeof hooks.onSuccess === 'function') {
