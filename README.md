@@ -2,6 +2,10 @@
 
 A WordPress theme package for building Laravel Livewire inspired WordPress components with Alpine.js.
 
+## Demos
+
+https://wp-morph.andrewrhyand.com/
+
 ## Installation
 
 Install the package via composer.
@@ -42,10 +46,6 @@ add_action('wp_enqueue_scripts', function () {
     wp_dequeue_script('bb-alpine');
 });
 ```
-
-## Live Examples
-
-https://wp-morph.andrewrhyand.com/
 
 ## Hooks
 
