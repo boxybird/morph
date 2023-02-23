@@ -1,1 +1,4 @@
-[data-wpmorph-component-name]{pointer-events:none}
+[data-wpmorph-component-name] {
+  pointer-events: none;
+}
+

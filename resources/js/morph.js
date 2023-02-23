@@ -42,7 +42,7 @@ export default (el, data, hooks = {}) => {
       window.Alpine.morph(rootEl, res, {
         adding(el, skip) {
           if (el.nodeType === 1 && el.hasAttribute('wp-morph-transition')) {
-            el.classList.add('morph-transition')
+            el.classList.add('wp-morph-transition')
           }
         },
 
@@ -50,7 +50,7 @@ export default (el, data, hooks = {}) => {
           if (
             el.nodeType === 1 &&
             el.hasAttribute('wp-morph-transition') &&
-            el.classList.contains('morph-transition')
+            el.classList.contains('wp-morph-transition')
           ) {
             setTimeout(() => {
               el.classList.add('in')
