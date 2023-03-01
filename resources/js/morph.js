@@ -39,21 +39,33 @@ export default (el, data, hooks = {}) => {
       return response.text()
     })
     .then((res) => {
+      const keys = []
+
       window.Alpine.morph(rootEl, res, {
-        adding(el, skip) {
-          if (el.nodeType === 1 && el.hasAttribute('wp-morph-transition')) {
-            el.classList.add('wp-morph-transition')
+        adding(el) {
+          if (
+            el.nodeType === 1 &&
+            el.hasAttribute('wp-morph-transition') &&
+            el.hasAttribute('key')
+          ) {
+            let key = el.getAttribute('key')
+
+            keys.push(key)
+
+            if (keys[0] === key) {
+              const customCssClass = el.getAttribute('wp-morph-transition')
+
+              el.classList.add(customCssClass || 'wp-morph-transition')
+            }
           }
         },
 
         added(el) {
-          if (
-            el.nodeType === 1 &&
-            el.hasAttribute('wp-morph-transition') &&
-            el.classList.contains('wp-morph-transition')
-          ) {
+          if (el.nodeType === 1 && el.hasAttribute('wp-morph-transition')) {
+            const customInCssClass = el.getAttribute('wp-morph-transition-in')
+
             setTimeout(() => {
-              el.classList.add('in')
+              el.classList.add(customInCssClass || 'wp-morph-transition-in')
             }, 170)
           }
         },

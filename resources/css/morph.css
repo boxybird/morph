@@ -4,7 +4,7 @@
   transition: all 170ms ease-in-out;
 }
 
-.wp-morph-transition.in {
+.wp-morph-transition-in {
   opacity: 1;
   transform: scale(1);
 }

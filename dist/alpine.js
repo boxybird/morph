@@ -479,7 +479,7 @@ function generateFunctionFromString(expression, el) {
   }
   let AsyncFunction = Object.getPrototypeOf(async function() {
   }).constructor;
-  let rightSideSafeExpression = /^[\n\s]*if.*\(.*\)/.test(expression) || /^(let|const)\s/.test(expression) ? `(() => { ${expression} })()` : expression;
+  let rightSideSafeExpression = /^[\n\s]*if.*\(.*\)/.test(expression) || /^(let|const)\s/.test(expression) ? `(async()=>{ ${expression} })()` : expression;
   const safeAsyncFunction = () => {
     try {
       return new AsyncFunction(["__self", "scope"], `with (scope) { __self.result = ${rightSideSafeExpression} }; __self.finished = true; return __self.result;`);
@@ -520,6 +520,8 @@ function runIfTypeOfFunction(receiver, value, scope2, params, el) {
     } else {
       receiver(result);
     }
+  } else if (typeof value === "object" && value instanceof Promise) {
+    value.then((i) => receiver(i));
   } else {
     receiver(value);
   }
@@ -536,6 +538,18 @@ function setPrefix(newPrefix) {
 var directiveHandlers = {};
 function directive(name, callback) {
   directiveHandlers[name] = callback;
+  return {
+    before(directive2) {
+      if (!directiveHandlers[directive2]) {
+        console.warn("Cannot find directive `${directive}`. `${name}` will use the default order of execution");
+        return;
+      }
+      const pos = directiveOrder.indexOf(directive2) ?? directiveOrder.indexOf("DEFAULT");
+      if (pos >= 0) {
+        directiveOrder.splice(pos, 0, name);
+      }
+    }
+  };
 }
 function directives(el, attributes, originalAttributeOverride) {
   attributes = Array.from(attributes);
@@ -659,6 +673,13 @@ var directiveOrder = [
   "ref",
   "data",
   "id",
+  "radio",
+  "tabs",
+  "switch",
+  "disclosure",
+  "menu",
+  "listbox",
+  "combobox",
   "bind",
   "init",
   "for",
@@ -685,32 +706,6 @@ function dispatch(el, name, detail = {}) {
     composed: true,
     cancelable: true
   }));
-}
-
-// packages/alpinejs/src/nextTick.js
-var tickStack = [];
-var isHolding = false;
-function nextTick(callback = () => {
-}) {
-  queueMicrotask(() => {
-    isHolding || setTimeout(() => {
-      releaseNextTicks();
-    });
-  });
-  return new Promise((res) => {
-    tickStack.push(() => {
-      callback();
-      res();
-    });
-  });
-}
-function releaseNextTicks() {
-  isHolding = false;
-  while (tickStack.length)
-    tickStack.shift()();
-}
-function holdNextTicks() {
-  isHolding = true;
 }
 
 // packages/alpinejs/src/utils/walk.js
@@ -788,9 +783,16 @@ function findClosest(el, callback) {
 function isRoot(el) {
   return rootSelectors().some((selector) => el.matches(selector));
 }
-function initTree(el, walker = walk) {
+var initInterceptors2 = [];
+function interceptInit(callback) {
+  initInterceptors2.push(callback);
+}
+function initTree(el, walker = walk, intercept = () => {
+}) {
   deferHandlingDirectives(() => {
     walker(el, (el2, skip) => {
+      intercept(el2, skip);
+      initInterceptors2.forEach((i) => i(el2, skip));
       directives(el2, el2.attributes).forEach((handle) => handle());
       el2._x_ignore && skip();
     });
@@ -798,6 +800,32 @@ function initTree(el, walker = walk) {
 }
 function destroyTree(root) {
   walk(root, (el) => cleanupAttributes(el));
+}
+
+// packages/alpinejs/src/nextTick.js
+var tickStack = [];
+var isHolding = false;
+function nextTick(callback = () => {
+}) {
+  queueMicrotask(() => {
+    isHolding || setTimeout(() => {
+      releaseNextTicks();
+    });
+  });
+  return new Promise((res) => {
+    tickStack.push(() => {
+      callback();
+      res();
+    });
+  });
+}
+function releaseNextTicks() {
+  isHolding = false;
+  while (tickStack.length)
+    tickStack.shift()();
+}
+function holdNextTicks() {
+  isHolding = true;
 }
 
 // packages/alpinejs/src/utils/classes.js
@@ -1178,6 +1206,9 @@ function skipDuringClone(callback, fallback = () => {
 }) {
   return (...args) => isCloning ? fallback(...args) : callback(...args);
 }
+function onlyDuringClone(callback) {
+  return (...args) => isCloning && callback(...args);
+}
 function clone(oldEl, newEl) {
   if (!newEl._x_dataStack)
     newEl._x_dataStack = oldEl._x_dataStack;
@@ -1337,11 +1368,11 @@ function getBinding(el, name, fallback) {
   let attr = el.getAttribute(name);
   if (attr === null)
     return typeof fallback === "function" ? fallback() : fallback;
+  if (attr === "")
+    return true;
   if (isBooleanAttr(name)) {
     return !![name, "true"].includes(attr);
   }
-  if (attr === "")
-    return true;
   return attr;
 }
 
@@ -1474,23 +1505,28 @@ var Alpine = {
   get raw() {
     return raw;
   },
-  version: "3.10.3",
+  version: "3.11.1",
   flushAndStopDeferringMutations,
   dontAutoEvaluateFunctions,
   disableEffectScheduling,
+  startObservingMutations,
+  stopObservingMutations,
   setReactivityEngine,
   closestDataStack,
   skipDuringClone,
+  onlyDuringClone,
   addRootSelector,
   addInitSelector,
   addScopeToNode,
   deferMutations,
   mapAttributes,
   evaluateLater,
+  interceptInit,
   setEvaluator,
   mergeProxies,
   findClosest,
   closestRoot,
+  destroyTree,
   interceptor,
   transition,
   setStyles,
@@ -1510,6 +1546,7 @@ var Alpine = {
   clone,
   bound: getBinding,
   $data: scope,
+  walk,
   data,
   bind: bind2
 };
@@ -2284,8 +2321,41 @@ function warnMissingPluginMagic(name, magicName, slug) {
   magic(magicName, (el) => warn(`You can't use [$${directiveName}] without first installing the "${name}" plugin here: https://alpinejs.dev/plugins/${slug}`, el));
 }
 
+// packages/alpinejs/src/entangle.js
+function entangle({get: outerGet, set: outerSet}, {get: innerGet, set: innerSet}) {
+  let firstRun = true;
+  let outerHash, innerHash, outerHashLatest, innerHashLatest;
+  let reference = effect(() => {
+    let outer, inner;
+    if (firstRun) {
+      outer = outerGet();
+      innerSet(outer);
+      inner = innerGet();
+      firstRun = false;
+    } else {
+      outer = outerGet();
+      inner = innerGet();
+      outerHashLatest = JSON.stringify(outer);
+      innerHashLatest = JSON.stringify(inner);
+      if (outerHashLatest !== outerHash) {
+        inner = innerGet();
+        innerSet(outer);
+        inner = outer;
+      } else {
+        outerSet(inner);
+        outer = inner;
+      }
+    }
+    outerHash = JSON.stringify(outer);
+    innerHash = JSON.stringify(inner);
+  });
+  return () => {
+    release(reference);
+  };
+}
+
 // packages/alpinejs/src/directives/x-modelable.js
-directive("modelable", (el, {expression}, {effect: effect3, evaluateLater: evaluateLater2}) => {
+directive("modelable", (el, {expression}, {effect: effect3, evaluateLater: evaluateLater2, cleanup: cleanup2}) => {
   let func = evaluateLater2(expression);
   let innerGet = () => {
     let result;
@@ -2303,16 +2373,35 @@ directive("modelable", (el, {expression}, {effect: effect3, evaluateLater: evalu
     el._x_removeModelListeners["default"]();
     let outerGet = el._x_model.get;
     let outerSet = el._x_model.set;
-    effect3(() => innerSet(outerGet()));
-    effect3(() => outerSet(innerGet()));
+    let releaseEntanglement = entangle({
+      get() {
+        return outerGet();
+      },
+      set(value) {
+        outerSet(value);
+      }
+    }, {
+      get() {
+        return innerGet();
+      },
+      set(value) {
+        innerSet(value);
+      }
+    });
+    cleanup2(releaseEntanglement);
   });
 });
 
 // packages/alpinejs/src/directives/x-teleport.js
-directive("teleport", (el, {expression}, {cleanup: cleanup2}) => {
+var teleportContainerDuringClone = document.createElement("div");
+directive("teleport", (el, {modifiers, expression}, {cleanup: cleanup2}) => {
   if (el.tagName.toLowerCase() !== "template")
     warn("x-teleport can only be used on a <template> tag", el);
-  let target = document.querySelector(expression);
+  let target = skipDuringClone(() => {
+    return document.querySelector(expression);
+  }, () => {
+    return teleportContainerDuringClone;
+  })();
   if (!target)
     warn(`Cannot find x-teleport element for selector: "${expression}"`);
   let clone2 = el.content.cloneNode(true).firstElementChild;
@@ -2328,7 +2417,13 @@ directive("teleport", (el, {expression}, {cleanup: cleanup2}) => {
   }
   addScopeToNode(clone2, {}, el);
   mutateDom(() => {
-    target.appendChild(clone2);
+    if (modifiers.includes("prepend")) {
+      target.parentNode.insertBefore(clone2, target);
+    } else if (modifiers.includes("append")) {
+      target.parentNode.insertBefore(clone2, target.nextSibling);
+    } else {
+      target.appendChild(clone2);
+    }
     initTree(clone2);
     clone2._x_ignore = true;
   });
@@ -2434,6 +2529,8 @@ function isNumeric(subject) {
   return !Array.isArray(subject) && !isNaN(subject);
 }
 function kebabCase2(subject) {
+  if ([" ", "_"].includes(subject))
+    return subject;
   return subject.replace(/([a-z])([A-Z])/g, "$1-$2").replace(/[_\s]/, "-").toLowerCase();
 }
 function isKeyEvent(event) {
@@ -2445,6 +2542,10 @@ function isListeningForASpecificKeyThatHasntBeenPressed(e, modifiers) {
   });
   if (keyModifiers.includes("debounce")) {
     let debounceIndex = keyModifiers.indexOf("debounce");
+    keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || "invalid-wait").split("ms")[0]) ? 2 : 1);
+  }
+  if (keyModifiers.includes("throttle")) {
+    let debounceIndex = keyModifiers.indexOf("throttle");
     keyModifiers.splice(debounceIndex, isNumeric((keyModifiers[debounceIndex + 1] || "invalid-wait").split("ms")[0]) ? 2 : 1);
   }
   if (keyModifiers.length === 0)
@@ -2474,8 +2575,8 @@ function keyToModifiers(key) {
   let modifierToKeyMap = {
     ctrl: "control",
     slash: "/",
-    space: "-",
-    spacebar: "-",
+    space: " ",
+    spacebar: " ",
     cmd: "meta",
     esc: "escape",
     up: "arrow-up",
@@ -2483,7 +2584,9 @@ function keyToModifiers(key) {
     left: "arrow-left",
     right: "arrow-right",
     period: ".",
-    equal: "="
+    equal: "=",
+    minus: "-",
+    underscore: "_"
   };
   modifierToKeyMap[key] = key;
   return Object.keys(modifierToKeyMap).map((modifier) => {
@@ -2494,80 +2597,103 @@ function keyToModifiers(key) {
 
 // packages/alpinejs/src/directives/x-model.js
 directive("model", (el, {modifiers, expression}, {effect: effect3, cleanup: cleanup2}) => {
-  let evaluate2 = evaluateLater(el, expression);
-  let assignmentExpression = `${expression} = rightSideOfExpression($event, ${expression})`;
-  let evaluateAssignment = evaluateLater(el, assignmentExpression);
-  var event = el.tagName.toLowerCase() === "select" || ["checkbox", "radio"].includes(el.type) || modifiers.includes("lazy") ? "change" : "input";
-  let assigmentFunction = generateAssignmentFunction(el, modifiers, expression);
-  let removeListener = on(el, event, modifiers, (e) => {
-    evaluateAssignment(() => {
-    }, {scope: {
-      $event: e,
-      rightSideOfExpression: assigmentFunction
-    }});
-  });
-  if (!el._x_removeModelListeners)
-    el._x_removeModelListeners = {};
-  el._x_removeModelListeners["default"] = removeListener;
-  cleanup2(() => el._x_removeModelListeners["default"]());
-  let evaluateSetModel = evaluateLater(el, `${expression} = __placeholder`);
-  el._x_model = {
-    get() {
-      let result;
-      evaluate2((value) => result = value);
-      return result;
-    },
-    set(value) {
-      evaluateSetModel(() => {
-      }, {scope: {__placeholder: value}});
+  let scopeTarget = el;
+  if (modifiers.includes("parent")) {
+    scopeTarget = el.parentNode;
+  }
+  let evaluateGet = evaluateLater(scopeTarget, expression);
+  let evaluateSet;
+  if (typeof expression === "string") {
+    evaluateSet = evaluateLater(scopeTarget, `${expression} = __placeholder`);
+  } else if (typeof expression === "function" && typeof expression() === "string") {
+    evaluateSet = evaluateLater(scopeTarget, `${expression()} = __placeholder`);
+  } else {
+    evaluateSet = () => {
+    };
+  }
+  let getValue = () => {
+    let result;
+    evaluateGet((value) => result = value);
+    return isGetterSetter(result) ? result.get() : result;
+  };
+  let setValue = (value) => {
+    let result;
+    evaluateGet((value2) => result = value2);
+    if (isGetterSetter(result)) {
+      result.set(value);
+    } else {
+      evaluateSet(() => {
+      }, {
+        scope: {__placeholder: value}
+      });
     }
   };
-  el._x_forceModelUpdate = () => {
-    evaluate2((value) => {
-      if (value === void 0 && expression.match(/\./))
-        value = "";
-      window.fromModel = true;
-      mutateDom(() => bind(el, "value", value));
-      delete window.fromModel;
-    });
-  };
-  effect3(() => {
-    if (modifiers.includes("unintrusive") && document.activeElement.isSameNode(el))
-      return;
-    el._x_forceModelUpdate();
-  });
-});
-function generateAssignmentFunction(el, modifiers, expression) {
-  if (el.type === "radio") {
+  if (typeof expression === "string" && el.type === "radio") {
     mutateDom(() => {
       if (!el.hasAttribute("name"))
         el.setAttribute("name", expression);
     });
   }
-  return (event, currentValue) => {
-    return mutateDom(() => {
-      if (event instanceof CustomEvent && event.detail !== void 0) {
-        return event.detail || event.target.value;
-      } else if (el.type === "checkbox") {
-        if (Array.isArray(currentValue)) {
-          let newValue = modifiers.includes("number") ? safeParseNumber(event.target.value) : event.target.value;
-          return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter((el2) => !checkedAttrLooseCompare2(el2, newValue));
-        } else {
-          return event.target.checked;
-        }
-      } else if (el.tagName.toLowerCase() === "select" && el.multiple) {
-        return modifiers.includes("number") ? Array.from(event.target.selectedOptions).map((option) => {
-          let rawValue = option.value || option.text;
-          return safeParseNumber(rawValue);
-        }) : Array.from(event.target.selectedOptions).map((option) => {
-          return option.value || option.text;
-        });
-      } else {
-        let rawValue = event.target.value;
-        return modifiers.includes("number") ? safeParseNumber(rawValue) : modifiers.includes("trim") ? rawValue.trim() : rawValue;
-      }
+  var event = el.tagName.toLowerCase() === "select" || ["checkbox", "radio"].includes(el.type) || modifiers.includes("lazy") ? "change" : "input";
+  let removeListener = on(el, event, modifiers, (e) => {
+    setValue(getInputValue(el, modifiers, e, getValue()));
+  });
+  if (!el._x_removeModelListeners)
+    el._x_removeModelListeners = {};
+  el._x_removeModelListeners["default"] = removeListener;
+  cleanup2(() => el._x_removeModelListeners["default"]());
+  if (el.form) {
+    let removeResetListener = on(el.form, "reset", [], (e) => {
+      nextTick(() => el._x_model && el._x_model.set(el.value));
     });
+    cleanup2(() => removeResetListener());
+  }
+  el._x_model = {
+    get() {
+      return getValue();
+    },
+    set(value) {
+      setValue(value);
+    }
   };
+  el._x_forceModelUpdate = (value) => {
+    value = value === void 0 ? getValue() : value;
+    if (value === void 0 && typeof expression === "string" && expression.match(/\./))
+      value = "";
+    window.fromModel = true;
+    mutateDom(() => bind(el, "value", value));
+    delete window.fromModel;
+  };
+  effect3(() => {
+    let value = getValue();
+    if (modifiers.includes("unintrusive") && document.activeElement.isSameNode(el))
+      return;
+    el._x_forceModelUpdate(value);
+  });
+});
+function getInputValue(el, modifiers, event, currentValue) {
+  return mutateDom(() => {
+    if (event instanceof CustomEvent && event.detail !== void 0) {
+      return typeof event.detail != "undefined" ? event.detail : event.target.value;
+    } else if (el.type === "checkbox") {
+      if (Array.isArray(currentValue)) {
+        let newValue = modifiers.includes("number") ? safeParseNumber(event.target.value) : event.target.value;
+        return event.target.checked ? currentValue.concat([newValue]) : currentValue.filter((el2) => !checkedAttrLooseCompare2(el2, newValue));
+      } else {
+        return event.target.checked;
+      }
+    } else if (el.tagName.toLowerCase() === "select" && el.multiple) {
+      return modifiers.includes("number") ? Array.from(event.target.selectedOptions).map((option) => {
+        let rawValue = option.value || option.text;
+        return safeParseNumber(rawValue);
+      }) : Array.from(event.target.selectedOptions).map((option) => {
+        return option.value || option.text;
+      });
+    } else {
+      let rawValue = event.target.value;
+      return modifiers.includes("number") ? safeParseNumber(rawValue) : modifiers.includes("trim") ? rawValue.trim() : rawValue;
+    }
+  });
 }
 function safeParseNumber(rawValue) {
   let number = rawValue ? parseFloat(rawValue) : null;
@@ -2578,6 +2704,9 @@ function checkedAttrLooseCompare2(valueA, valueB) {
 }
 function isNumeric2(subject) {
   return !Array.isArray(subject) && !isNaN(subject);
+}
+function isGetterSetter(value) {
+  return value !== null && typeof value === "object" && typeof value.get === "function" && typeof value.set === "function";
 }
 
 // packages/alpinejs/src/directives/x-cloak.js
@@ -2635,8 +2764,9 @@ directive("bind", (el, {value, modifiers, expression, original}, {effect: effect
     return storeKeyForXFor(el, expression);
   let evaluate2 = evaluateLater(el, expression);
   effect3(() => evaluate2((result) => {
-    if (result === void 0 && expression.match(/\./))
+    if (result === void 0 && typeof expression === "string" && expression.match(/\./)) {
       result = "";
+    }
     mutateDom(() => bind(el, value, result, modifiers));
   }));
 });
