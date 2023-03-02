@@ -39,6 +39,11 @@ export default (el, data, hooks = {}) => {
       return response.text()
     })
     .then((res) => {
+      // Lifecycle hook
+      if (hooks.onSuccess && typeof hooks.onSuccess === 'function') {
+        hooks.onSuccess(data)
+      }
+
       const keys = []
 
       window.Alpine.morph(rootEl, res, {
@@ -75,11 +80,6 @@ export default (el, data, hooks = {}) => {
           }
         },
       })
-
-      // Lifecycle hook
-      if (hooks.onSuccess && typeof hooks.onSuccess === 'function') {
-        hooks.onSuccess(data)
-      }
     })
     .catch((error) => {
       // Lifecycle hook
