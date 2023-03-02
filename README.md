@@ -37,7 +37,7 @@ Visit and refresh permalinks by clicking **"Save Changes"** button
 
 By default, this package pre-bundles Alpine. If you site already has Alpine installed, you should dequeue this packages version to avoid conflicts.
 
-**Note:** A minimum version of Alpine 3.10.0 is required. 
+**Note:** A minimum version of Alpine 3.11.0 is required. 
 
 > Location: /themes/your-theme/functions.php
 

@@ -42,6 +42,7 @@ export default (el, data, hooks = {}) => {
       const keys = []
 
       window.Alpine.morph(rootEl, res, {
+        // Handle adding the base transition class to the element
         adding(el) {
           if (
             el.nodeType === 1 &&
@@ -52,6 +53,9 @@ export default (el, data, hooks = {}) => {
 
             keys.push(key)
 
+            // Only add the transition class to the first element with the same key.
+            // This is to prevent the transition from being applied to all elements
+            // rather than just the one that was is currently being added.
             if (keys[0] === key) {
               const customCssClass = el.getAttribute('wp-morph-transition')
 
@@ -60,6 +64,7 @@ export default (el, data, hooks = {}) => {
           }
         },
 
+        // Handle adding the in transition class to the element
         added(el) {
           if (el.nodeType === 1 && el.hasAttribute('wp-morph-transition')) {
             const customInCssClass = el.getAttribute('wp-morph-transition-in')
