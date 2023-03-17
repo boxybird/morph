@@ -1,5 +1,6 @@
 <?php
 
+use BoxyBird\Morph\MorphRender;
 use BoxyBird\Morph\AcfBlockMeta;
 use BoxyBird\Morph\MorphComponent;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,12 +35,44 @@ if (!function_exists('morph_component')) {
 
             $morph_files = $morph_request->files->all();
             $morph_post = $morph_request->request->all();
-                                                                                    
+                                                                                                                            
             require $morph_component->path;
 
             AcfBlockMeta::reset($initial_data['acf_block_id'] ?? '');
             ?>
         </div>
         <?php
+    }
+}
+
+if (!function_exists('morph_render')) {
+    function morph_render(object $class)
+    {
+        $render = new MorphRender($class);
+
+        // Run lifecycle methods. Currently only 'mount' is supported.
+        // So running here, before the request methods, makes sense.
+        array_walk($render->lifecycle_methods, function ($method) use ($class) {
+            $class->{$method->name}();
+        });
+
+        // Run request methods and pass the request
+        // value as an argument to the respective method.
+        // BBTODO: This could be cleaned up a bit.
+        array_walk($render->request_methods, function ($method) use ($class, $render) {
+            $request = $render->request->request;
+            $files = $render->request->files;
+
+            $value = !empty($files->get($method->name))
+                ? $files->get($method->name)
+                : $request->get($method->name);
+
+            $class->{$method->name}($value);
+        });
+
+        // Return all public properties after running lifecycle and request methods.
+        return array_map(function ($property) use ($class) {
+            return $property->getValue($class);
+        }, $render->properties);
     }
 }
