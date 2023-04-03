@@ -6,6 +6,10 @@ A WordPress theme package for building Laravel Livewire inspired WordPress compo
 
 https://wp-morph.andrewrhyand.com/
 
+## Example Theme
+
+https://github.com/boxybird/morph-example-theme
+
 ## Installation
 
 Install the package via composer.
