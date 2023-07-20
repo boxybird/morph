@@ -28,18 +28,18 @@ if (!function_exists('morph_component')) {
 
             // Safety measure to prevent user from overriding variables...
             unset($initial_data['morph_component']);
-            unset($initial_data['morph_request']);
+        unset($initial_data['morph_request']);
 
-            //...during the extraction of the $initial_data.
-            extract($initial_data);
+        //...during the extraction of the $initial_data.
+        extract($initial_data);
 
-            $morph_files = $morph_request->files->all();
-            $morph_post = $morph_request->request->all();
+        $morph_files = $morph_request->files->all();
+        $morph_post = $morph_request->request->all();
                                                                                                                             
-            require $morph_component->path;
+        require $morph_component->path;
 
-            AcfBlockMeta::reset($initial_data['acf_block_id'] ?? '');
-            ?>
+        AcfBlockMeta::reset($initial_data['acf_block_id'] ?? '');
+        ?>
         </div>
         <?php
     }
@@ -50,16 +50,22 @@ if (!function_exists('morph_render')) {
     {
         $render = new MorphRender($class);
 
-        // Run lifecycle methods. Currently only 'mount' is supported.
-        // So running here, before the request methods, makes sense.
-        array_walk($render->lifecycle_methods, function ($method) use ($class) {
-            $class->{$method->name}();
-        });
+        $request = Request::createFromGlobals();
 
+        $is_morph_request = $request->headers->get('x-morph-request');
+
+        // Run lifecycle methods on initial page load. Currently only 'mount' is supported.
+        // So running here, before the request methods, makes sense.
+        if (!$is_morph_request) {
+            foreach ($render->lifecycle_methods as $method) {
+                $class->{$method->name}();
+            }
+        }
+        
         // Run request methods and pass the request
         // value as an argument to the respective method.
         // BBTODO: This could be cleaned up a bit.
-        array_walk($render->request_methods, function ($method) use ($class, $render) {
+        foreach ($render->request_methods as $method) {
             $request = $render->request->request;
             $files = $render->request->files;
 
@@ -68,7 +74,7 @@ if (!function_exists('morph_render')) {
                 : $request->get($method->name);
 
             $class->{$method->name}($value);
-        });
+        }
 
         // Return all public properties after running lifecycle and request methods.
         return array_map(function ($property) use ($class) {
