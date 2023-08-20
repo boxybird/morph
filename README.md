@@ -27,7 +27,7 @@ composer require boxybird/morph
 define('BB_MORPH_HASH_KEY', 'SOME_RANDOM_16_CHARACTER_STRING');
 ```
 
-> Location: /themes/your-theme/functions.php
+> Location: /your-theme/functions.php
 
 ```php
 require_once __DIR__ . '/vendor/autoload.php';
@@ -43,7 +43,7 @@ By default, this package pre-bundles Alpine. If you site already has Alpine inst
 
 **Note:** A minimum version of Alpine 3.11.0 is required. 
 
-> Location: /themes/your-theme/functions.php
+> Location: /your-theme/functions.php
 
 ```php
 add_action('wp_enqueue_scripts', function () {
@@ -75,35 +75,59 @@ add_filter('morph/component/path', function ($path) {
 });
 ```
 
-## Example Counter
+## Example Counters
 
-> Location: /themes/your-theme/index.php
+> Location: /your-theme/index.php
 
 ```php
 <?php get_header(); ?>
 
-    <?php morph_component('counter'); ?>
+    <?php morph_component('counter.class'); ?>
+
+    <?php morph_component('counter.procedural'); ?>
 
 <?php get_footer(); ?>
 ```
 
-> Location: /themes/your-theme/morph/components/counter.php
+> Location: /your-theme/morph/components/counter/class.php
 
 ```php
 <?php
 
-/** @var $morph_post */
+// Class
+
+[$count] = morph_render(new class {
+    public $count;
+
+    public function __construct()
+    {
+        $this->count = (int) get_option('count', 0);
+    }
+
+    public function increment()
+    {
+        update_option('count', ++$this->count);
+    }
+});
+?>
+
+<div x-data>
+    <span><?= $count; ?></span>
+    <button x-on:click="$wpMorph('increment')">Increment</button>
+</div>
+```
+
+> Location: /your-theme/morph/components/counter/procedural.php
+
+```php
+<?php
+
+// Procedural
 
 $count = (int) get_option('count', 0);
 
-if ($morph_post['increment'] ?? false) {
-    $count++;
-
-    update_option('count', $count);
-}
-
-if ($count >= 10) {
-    delete_option('count');   
+if ($_POST['increment'] ?? false) {
+    update_option('count', ++$count);
 }
 ?>
 
@@ -113,99 +137,9 @@ if ($count >= 10) {
 </div>
 ```
 
-## Example Upload
-
-> Location: /themes/your-theme/index.php
-
-```php
-<?php get_header(); ?>
-
-    <?php morph_component('upload'); ?>
-
-<?php get_footer(); ?>
-```
-
-> Location: /themes/your-theme/morph/components/upload.php
-
-```php
-<?php
-
-/** @var Symfony\Component\HttpFoundation\File\UploadedFile $morph_files */
-
-$images = array_map(function ($image) {
-    $image->move(wp_upload_dir()['path'], $image->getClientOriginalName());
-    
-    return wp_upload_dir()['url'] . '/' . $image->getClientOriginalName();
-}, $morph_files['images'] ?? []);
-?>
-
-<div x-data="{ images: [] }">
-    <input type="file" multiple x-on:change="images = $el.files">        
-    <button x-on:click="$wpMorph({ images })">Upload</button>
-
-    <?php foreach ($images as $image): ?>
-        <img src="<?= $image; ?>">
-    <?php endforeach; ?>
-</div>
-```
-
-## Example Todos
-
-> Location: /themes/your-theme/index.php
-
-```php
-<?php get_header(); ?>
-
-    <?php morph_component('todos'); ?>
-
-<?php get_footer(); ?>
-```
-
-> Location: /themes/your-theme/morph/components/todos.php
-
-```php
-<?php
-
-/** @var $morph_post */
-
-$todos = get_option('todos', []);
-
-if ($todo = $morph_post['todo'] ?? false) {
-    $todos[] = $todo;
-
-    update_option('todos', $todos);
-}
-
-if (count($todos) >= 5) {
-   delete_option('todos');   
-}
-?>
-
-<div x-data="{ todo: '' }">
-    <input  
-        type="text" 
-        x-model="todo" 
-        x-on:keydown.enter="$wpMorph({ todo }, {
-            onSuccess: () => todo = '',
-        })">
-        
-    <button 
-        x-on:click="$wpMorph({ todo }, {
-            onSuccess: () => todo = '',
-        })"
-    >Add</button>
-
-    <ul>
-        <?php foreach ($todos as $todo) : ?>
-            <li><?= esc_html($todo); ?></li>
-        <?php endforeach; ?>
-    </ul>
-</div>
-```
-
 ## Example Event/Listener
 
-> Location: /themes/your-theme/index.php
+> Location: /your-theme/index.php
 
 ```php
 <?php get_header(); ?>
@@ -217,7 +151,7 @@ if (count($todos) >= 5) {
 <?php get_footer(); ?>
 ```
 
-> Location: /themes/your-theme/morph/components/event.php
+> Location: /your-theme/morph/components/event.php
 
 ```php
 <div x-data>
@@ -226,12 +160,12 @@ if (count($todos) >= 5) {
 </div>
 ```
 
-> Location: /themes/your-theme/morph/components/listener.php
+> Location: /your-theme/morph/components/listener.php
 
 ```php
 <?php
 
-$notification = $morph_post['notification'] ?? null;
+$notification = $_POST['notification'] ?? null;
 ?>
 
 <div x-data x-on:notify.window="$wpMorph({ notification: $event.detail })">
@@ -241,10 +175,14 @@ $notification = $morph_post['notification'] ?? null;
 
 ## Example Global Listener
 
-> Location: /themes/your-theme/some-js-file.js
+> Location: /your-theme/some-js-file.js
 
 ```js
 document.addEventListener('notify', function ({ detail }) {
     console.log(detail) // A notification from the event.php component.
 });
 ```
+
+## More Examples
+
+https://github.com/boxybird/morph-example-theme/tree/master/resources/components
