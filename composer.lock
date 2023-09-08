@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5354b97765e536ea154fcf806649db99",
+    "content-hash": "5a12f287ddcd66058d64ab0244601b6c",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -634,16 +634,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v5.4.21",
+            "version": "v5.4.23",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "3bb6ee5582366c4176d5ce596b380117c8200bbf"
+                "reference": "af9fbb378f5f956c8f29d4886644c84c193780ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/3bb6ee5582366c4176d5ce596b380117c8200bbf",
-                "reference": "3bb6ee5582366c4176d5ce596b380117c8200bbf",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/af9fbb378f5f956c8f29d4886644c84c193780ac",
+                "reference": "af9fbb378f5f956c8f29d4886644c84c193780ac",
                 "shasum": ""
             },
             "require": {
@@ -690,7 +690,7 @@
             "description": "Defines an object-oriented layer for the HTTP specification",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/http-foundation/tree/v5.4.21"
+                "source": "https://github.com/symfony/http-foundation/tree/v5.4.23"
             },
             "funding": [
                 {
@@ -706,7 +706,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-02-17T21:35:35+00:00"
+            "time": "2023-04-18T06:30:11+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -876,16 +876,16 @@
         },
         {
             "name": "symfony/translation",
-            "version": "v5.4.21",
+            "version": "v5.4.22",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/translation.git",
-                "reference": "6996affeea65705086939894b77110e9a7f80874"
+                "reference": "9a401392f01bc385aa42760eff481d213a0cc2ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/translation/zipball/6996affeea65705086939894b77110e9a7f80874",
-                "reference": "6996affeea65705086939894b77110e9a7f80874",
+                "url": "https://api.github.com/repos/symfony/translation/zipball/9a401392f01bc385aa42760eff481d213a0cc2ba",
+                "reference": "9a401392f01bc385aa42760eff481d213a0cc2ba",
                 "shasum": ""
             },
             "require": {
@@ -953,7 +953,7 @@
             "description": "Provides tools to internationalize your application",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/translation/tree/v5.4.21"
+                "source": "https://github.com/symfony/translation/tree/v5.4.22"
             },
             "funding": [
                 {
@@ -969,7 +969,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-02-21T19:46:44+00:00"
+            "time": "2023-03-27T16:07:23+00:00"
         },
         {
             "name": "symfony/translation-contracts",

@@ -24,7 +24,7 @@ export default (el, data, hooks = {}) => {
       'X-Morph-Request': true,
       'X-Morph-Hash': componentHash,
     },
-    body: serialize(payload),
+    body: serialize(payload, { allowEmptyArrays: true }),
   })
     .then((response) => {
       // Lifecycle hook
