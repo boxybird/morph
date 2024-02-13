@@ -47,6 +47,8 @@ class AcfBlockMeta
             }
         }
 
+        $result = array_merge($result, $blocks);
+
         $result = array_filter($result, function ($block) {
             return strpos($block['blockName'], 'acf/') === 0;
         });
