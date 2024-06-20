@@ -1,5 +1,7 @@
 # Morph
 
+:warning: **NOTE: This project was fun, but just use [HTMX](https://github.com/bigskysoftware/htmx). I found it to be a better, more robust tool for the functionality this package was trying to provide.**
+
 A WordPress theme package for building Laravel Livewire inspired WordPress components with Alpine.js.
 
 ## Demos
